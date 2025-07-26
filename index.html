@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Amazon OT Calculator</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #1a1a1a;
+      color: #f5f5f5;
+      padding: 20px;
+    }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background-color: #2a2a2a;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(128, 0, 128, 0.5);
+    }
+    h2 {
+      text-align: center;
+      color: #bb86fc;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 6px;
+      border: none;
+      background-color: #3a3a3a;
+      color: #f5f5f5;
+    }
+    button {
+      width: 100%;
+      margin-top: 20px;
+      padding: 12px;
+      background-color: #bb86fc;
+      border: none;
+      color: white;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 20px;
+      background-color: #333;
+      border-radius: 8px;
+    }
+    .note {
+      font-size: 0.9em;
+      margin-top: 20px;
+      color: #bbbbbb;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Amazon Over Time Calculator</h2>
+    <label>Your Name</label>
+    <input type="text" id="name" placeholder="E.g. Andy Jassy" />
+
+    <label>Current Annual CTC (₹)</label>
+    <input type="number" id="ctc" placeholder="E.g. 500000" />
+
+    <label>Login Time</label>
+    <select id="login">
+      <option disabled selected>Select login time</option>
+    </select>
+
+    <label>Logout Time</label>
+    <select id="logout">
+      <option disabled selected>Select logout time</option>
+    </select>
+
+    <button onclick="calculate()">Calculate</button>
+
+    <div class="result" id="output"></div>
+
+    <div class="note">
+      * ₹150 allowance is added for afternoon shift (logout between 12 AM - 2 AM)<br>
+      * ₹225 allowance is added for night shift (logout between 3 AM - 6 AM)<br>
+      * 1 hour break is automatically deducted from total hours worked.
+    </div>
+  </div>
+
+  <script>
+    const loginSelect = document.getElementById("login");
+    const logoutSelect = document.getElementById("logout");
+
+    for (let i = 0; i < 24; i++) {
+      const label = `${i}:00`;
+      const optionLogin = document.createElement("option");
+      const optionLogout = document.createElement("option");
+      optionLogin.value = i;
+      optionLogout.value = i;
+      optionLogin.text = label;
+      optionLogout.text = label;
+      loginSelect.add(optionLogin);
+      logoutSelect.add(optionLogout);
+    }
+
+    function calculate() {
+      const name = document.getElementById("name").value.trim();
+      const ctc = parseFloat(document.getElementById("ctc").value);
+      const login = parseInt(document.getElementById("login").value);
+      const logout = parseInt(document.getElementById("logout").value);
+      const output = document.getElementById("output");
+
+      if (!name || isNaN(ctc) || isNaN(login) || isNaN(logout)) {
+        output.innerHTML = `<p>Please fill in all fields properly.</p>`;
+        return;
+      }
+
+      let hoursWorked = logout - login;
+      if (hoursWorked <= 0) hoursWorked += 24;
+
+      const effectiveHours = Math.max(0, hoursWorked - 1); // deducting 1 hour break
+      const monthly = ctc / 12;
+      const daily = monthly / 22;
+      const hourly = (daily / 8) * 2; // double pay for OT
+
+      const earning = hourly * effectiveHours;
+
+      let allowance = 0;
+      if (logout >= 0 && logout <= 2) {
+        allowance = 150;
+      } else if (logout >= 3 && logout <= 6) {
+        allowance = 225;
+      }
+
+      const total = earning + allowance;
+
+      output.innerHTML = `
+        <p>Hi ${name},</p>
+        <p>Effective OT Hours Worked: <strong>${effectiveHours} hours</strong></p>
+        <p>Per Hour OT Pay: ₹${hourly.toFixed(2)}</p>
+        <p>Base OT Earning: ₹${earning.toFixed(2)}</p>
+        <p>Shift Allowance: ₹${allowance}</p>
+        <p><strong>Total Earning: ₹${total.toFixed(2)}</strong></p>
+        <strong>Note:</strong> Data is not stored. Please take a screenshot if you wish to save the result.
+      `;
+    }
+  </script>
+
+  <div style="margin-top: 30px; text-align: center;">
+
+
+  <p style="margin-top: 20px; font-size: 0.9rem; color: #aaa;">
+    Made with 💜 by <strong>Syed Miran</strong>
+  </p>
+</div>
+
+</body>
+</html>
