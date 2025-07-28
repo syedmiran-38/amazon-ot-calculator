@@ -109,46 +109,46 @@
     }
 
     function calculate() {
-      const name = document.getElementById("name").value.trim();
-      const ctc = parseFloat(document.getElementById("ctc").value);
-      const login = parseInt(document.getElementById("login").value);
-      const logout = parseInt(document.getElementById("logout").value);
-      const output = document.getElementById("output");
+  const name = document.getElementById("name").value.trim();
+  const ctc = parseFloat(document.getElementById("ctc").value);
+  const login = parseInt(document.getElementById("login").value);
+  const logout = parseInt(document.getElementById("logout").value);
+  const output = document.getElementById("output");
 
-      if (!name || isNaN(ctc) || isNaN(login) || isNaN(logout)) {
-        output.innerHTML = `<p>Please fill in all fields properly.</p>`;
-        return;
-      }
+  if (!name || isNaN(ctc) || isNaN(login) || isNaN(logout)) {
+    output.innerHTML = `<p>Please fill in all fields properly.</p>`;
+    return;
+  }
 
-      let hoursWorked = logout - login;
-      if (hoursWorked <= 0) hoursWorked += 24;
+  let hoursWorked = logout - login;
+  if (hoursWorked <= 0) hoursWorked += 24;
 
-      const effectiveHours = Math.max(0, hoursWorked - 1); // deducting 1 hour break
-      const monthly = ctc / 12;
-      const daily = monthly / 22;
-      const hourly = (daily / 8) * 2; // double pay for OT
+  const effectiveHours = Math.max(0, hoursWorked - 1); // 1 hour break deducted
+  const monthly = ctc / 12;
+  const daily = monthly / 22;
+  const hourly = (daily / 8) * 2; // OT is paid double
 
-      const earning = hourly * effectiveHours;
+  const earning = hourly * effectiveHours;
 
-      let allowance = 0;
-      if (logout >= 0 && logout <= 2) {
-        allowance = 150;
-      } else if (logout >= 3 && logout <= 6) {
-        allowance = 225;
-      }
+  let allowance = 0;
+  if ([15, 16, 17].includes(login)) {
+    allowance = 150;
+  } else if ([18, 19, 20, 21, 22].includes(login)) {
+    allowance = 225;
+  }
 
-      const total = earning + allowance;
+  const total = earning + allowance;
 
-      output.innerHTML = `
-        <p>Hi ${name},</p>
-        <p>Effective OT Hours Worked: <strong>${effectiveHours} hours</strong></p>
-        <p>Per Hour OT Pay: ₹${hourly.toFixed(2)}</p>
-        <p>Base OT Earning: ₹${earning.toFixed(2)}</p>
-        <p>Shift Allowance: ₹${allowance}</p>
-        <p><strong>Total Earning: ₹${total.toFixed(2)}</strong></p>
-        <strong>Note:</strong> Data is not stored. Please take a screenshot if you wish to save the result.
-      `;
-    }
+  output.innerHTML = `
+    <p>Hi ${name},</p>
+    <p>Effective OT Hours Worked: <strong>${effectiveHours} hours</strong></p>
+    <p>Per Hour OT Pay: ₹${hourly.toFixed(2)}</p>
+    <p>Base OT Earning: ₹${earning.toFixed(2)}</p>
+    <p>Shift Allowance (based on login): ₹${allowance}</p>
+    <p><strong>Total Earning: ₹${total.toFixed(2)}</strong></p>
+    <strong>Note:</strong> Data is not stored. Please take a screenshot if you wish to save the result.
+  `;
+}
   </script>
 
   <div style="margin-top: 30px; text-align: center;">
